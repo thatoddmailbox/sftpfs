@@ -1,25 +1,34 @@
 package sftpfs
 
 import (
-	"errors"
+	"fmt"
+	"io"
 
 	"golang.org/x/crypto/ssh"
 )
 
-type subsystemRequestMsg struct {
-	Subsystem string
-}
-
 // A Client is an SFTP client that implements fs.FS.
 type Client struct {
 	cl *ssh.Client
+	s  *ssh.Session
 
-	ch  ssh.Channel
-	req <-chan *ssh.Request
+	stdin  io.WriteCloser
+	stdout io.Reader
 }
 
 func (c *Client) Close() error {
 	return c.cl.Close()
+}
+
+func (c *Client) sendPacket(p packet) error {
+	p.Length = uint32(len(p.Data)) + 1
+
+	_, err := c.stdin.Write(ssh.Marshal(p))
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 // Dial starts an SFTP connection with the given parameters.
@@ -33,18 +42,52 @@ func Dial(network, addr string, config *ssh.ClientConfig) (*Client, error) {
 		return nil, err
 	}
 
-	c.ch, c.req, err = c.cl.OpenChannel("session", nil)
+	c.s, err = c.cl.NewSession()
 	if err != nil {
 		return nil, err
 	}
 
-	result, err := c.ch.SendRequest("subsystem", true, ssh.Marshal(subsystemRequestMsg{"sftp"}))
+	c.stdin, err = c.s.StdinPipe()
 	if err != nil {
 		return nil, err
 	}
 
-	if !result {
-		return nil, errors.New("sftpfs: server failed to start sftp subsystem, is it supported?")
+	c.stdout, err = c.s.StdoutPipe()
+	if err != nil {
+		return nil, err
+	}
+
+	err = c.s.RequestSubsystem("sftp")
+	if err != nil {
+		return nil, err
+	}
+
+	// sftp v3 section 4
+
+	// send init packet
+	err = c.sendPacket(packet{
+		Type: fxpInit,
+		Data: []byte{
+			0, 0, 0, 3, // version 3
+		},
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	p, err := c.readPacket()
+	if err != nil {
+		return nil, err
+	}
+
+	versionPacket := packetFXPVersion{}
+	err = ssh.Unmarshal(p.Data, &versionPacket)
+	if err != nil {
+		return nil, err
+	}
+
+	if versionPacket.Version != 3 {
+		return nil, fmt.Errorf("sftpfs: unsupported sftp version %d", versionPacket.Version)
 	}
 
 	return &c, nil
