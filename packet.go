@@ -37,7 +37,36 @@ const (
 	fxpExtendedReply = 201
 )
 
+const (
+	fxfRead   = (1 << 0)
+	fxfWrite  = (1 << 1)
+	fxfAppend = (1 << 2)
+	fxfCreat  = (1 << 3)
+	fxfTrunc  = (1 << 4)
+	fxfExcl   = (1 << 5)
+)
+
 type packetFXPVersion struct {
 	Version       uint32
 	ExtensionData []byte `ssh:"rest"`
+}
+
+// everything below this line are requests
+// they must have the ID field prepended
+
+type packetFXPOpen struct {
+	Filename   string
+	PFlags     uint32
+	Attributes []byte `ssh:"rest"`
+}
+
+type packetFXPStatus struct {
+	StatusCode uint32
+	Message    string
+	Language   string
+}
+
+type packetFXPHandle struct {
+	HandleLength uint32
+	Handle       []byte `ssh:"rest"`
 }

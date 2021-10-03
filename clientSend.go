@@ -7,7 +7,7 @@ import (
 	"golang.org/x/crypto/ssh"
 )
 
-func (c *Client) Request(packetType byte, payload interface{}) (*packet, error) {
+func (c *Client) Request(packetType byte, payload interface{}) (interface{}, error) {
 	id := atomic.AddUint32(&c.atomicRequestID, 1)
 	idBytes := []byte{0, 0, 0, 0}
 	binary.BigEndian.PutUint32(idBytes, id)
@@ -30,7 +30,12 @@ func (c *Client) Request(packetType byte, payload interface{}) (*packet, error) 
 
 	response := <-ch
 
-	return response, nil
+	parsed, err := response.Parse()
+	if err != nil {
+		return nil, err
+	}
+
+	return parsed, nil
 }
 
 func (c *Client) sendPacket(p packet) error {
