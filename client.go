@@ -3,6 +3,7 @@ package sftpfs
 import (
 	"fmt"
 	"io"
+	"sync"
 
 	"golang.org/x/crypto/ssh"
 )
@@ -14,28 +15,24 @@ type Client struct {
 
 	stdin  io.WriteCloser
 	stdout io.Reader
+
+	// can ONLY be accessed with atomic functions!!!!
+	atomicRequestID uint32
+
+	responseChannels sync.Map
 }
 
 func (c *Client) Close() error {
 	return c.cl.Close()
 }
 
-func (c *Client) sendPacket(p packet) error {
-	p.Length = uint32(len(p.Data)) + 1
-
-	_, err := c.stdin.Write(ssh.Marshal(p))
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
 // Dial starts an SFTP connection with the given parameters.
 func Dial(network, addr string, config *ssh.ClientConfig) (*Client, error) {
 	var err error
 
-	c := Client{}
+	c := Client{
+		atomicRequestID: 0,
+	}
 
 	c.cl, err = ssh.Dial(network, addr, config)
 	if err != nil {
@@ -89,6 +86,8 @@ func Dial(network, addr string, config *ssh.ClientConfig) (*Client, error) {
 	if versionPacket.Version != 3 {
 		return nil, fmt.Errorf("sftpfs: unsupported sftp version %d", versionPacket.Version)
 	}
+
+	go c.receiveLoop()
 
 	return &c, nil
 }
