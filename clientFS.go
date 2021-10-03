@@ -20,6 +20,10 @@ func (c *Client) Open(name string) (fs.File, error) {
 	status, ok := r.(packetFXPStatus)
 	if ok {
 		// failure
+		if status.StatusCode == fxNoSuchFile {
+			return nil, fs.ErrNotExist
+		}
+
 		return nil, errors.New(status.Message)
 	}
 
@@ -49,6 +53,10 @@ func (c *Client) ReadDir(name string) ([]fs.DirEntry, error) {
 	status, ok := openResponse.(packetFXPStatus)
 	if ok {
 		// failure
+		if status.StatusCode == fxNoSuchFile {
+			return nil, fs.ErrNotExist
+		}
+
 		return nil, errors.New(status.Message)
 	}
 
