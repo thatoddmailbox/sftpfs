@@ -86,6 +86,10 @@ func (c *Client) ReadDir(name string) ([]fs.DirEntry, error) {
 		}
 
 		for _, entry := range name.Entries {
+			if entry.Filename == "." || entry.Filename == ".." {
+				continue
+			}
+
 			result = append(result, &DirEntry{
 				d: entry,
 			})
