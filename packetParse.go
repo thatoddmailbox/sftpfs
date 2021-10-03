@@ -61,6 +61,12 @@ func (p *packet) Parse() (interface{}, error) {
 		}
 
 		return r, nil
+	} else if p.Type == fxpAttrs {
+		r := packetFXPAttrs{}
+
+		r.Attributes, _ = parseAttrs(p.Data[4:])
+
+		return r, nil
 	}
 
 	return nil, fmt.Errorf("sftpfs: cannot parse packet with type %d", p.Type)

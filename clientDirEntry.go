@@ -15,14 +15,13 @@ func (d *DirEntry) IsDir() bool {
 }
 
 func (d *DirEntry) Type() fs.FileMode {
-	// TODO: implement other things
-	mode := fs.FileMode(0)
-	if d.d.Attributes.Permissions&(1<<14) != 0 {
-		mode |= fs.ModeDir
-	}
-	return mode
+	i, _ := d.Info()
+	return i.Mode()
 }
 
 func (d *DirEntry) Info() (fs.FileInfo, error) {
-	return &FileInfo{}, nil
+	return &FileInfo{
+		name:  d.d.Filename,
+		attrs: d.d.Attributes,
+	}, nil
 }

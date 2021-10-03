@@ -84,6 +84,10 @@ type packetFXPReaddir struct {
 	Handle []byte
 }
 
+type packetFXPStat struct {
+	Path string
+}
+
 type packetFXPStatus struct {
 	StatusCode uint32
 	Message    string
@@ -103,4 +107,8 @@ type packetFXPNameEntry struct {
 type packetFXPName struct {
 	Count   uint32
 	Entries []packetFXPNameEntry
+}
+
+type packetFXPAttrs struct {
+	Attributes attrs
 }

@@ -30,6 +30,7 @@ func (c *Client) Open(name string) (fs.File, error) {
 	}
 
 	return &File{
+		c:      c,
 		path:   name,
 		handle: handle.Handle,
 	}, nil
