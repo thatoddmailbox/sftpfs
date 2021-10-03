@@ -19,10 +19,13 @@ type Client struct {
 	// can ONLY be accessed with atomic functions!!!!
 	atomicRequestID uint32
 
+	closed bool
+
 	responseChannels sync.Map
 }
 
 func (c *Client) Close() error {
+	c.closed = true
 	return c.cl.Close()
 }
 

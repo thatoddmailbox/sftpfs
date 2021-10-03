@@ -36,6 +36,10 @@ func (c *Client) receiveLoop() {
 	for {
 		p, err := c.readPacket()
 		if err != nil {
+			if err == io.EOF && c.closed {
+				break
+			}
+
 			panic(err)
 		}
 
