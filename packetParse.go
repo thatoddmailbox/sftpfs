@@ -33,6 +33,10 @@ func (p *packet) Parse() (interface{}, error) {
 		}
 
 		return r, nil
+	} else if p.Type == fxpData {
+		return packetFXPData{
+			Data: p.Data[8:],
+		}, nil
 	} else if p.Type == fxpName {
 		r := packetFXPName{
 			Entries: []packetFXPNameEntry{},

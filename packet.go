@@ -76,6 +76,12 @@ type packetFXPClose struct {
 	Handle []byte
 }
 
+type packetFXPRead struct {
+	Handle []byte
+	Offset uint64
+	Length uint32
+}
+
 type packetFXPOpendir struct {
 	Path string
 }
@@ -96,6 +102,10 @@ type packetFXPStatus struct {
 
 type packetFXPHandle struct {
 	Handle []byte
+}
+
+type packetFXPData struct {
+	Data []byte
 }
 
 type packetFXPNameEntry struct {
