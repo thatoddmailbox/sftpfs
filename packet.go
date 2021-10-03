@@ -46,6 +46,18 @@ const (
 	fxfExcl   = (1 << 5)
 )
 
+const (
+	fxOK               = 0
+	fxEOF              = 1
+	fxNoSuchFile       = 2
+	fxPermissionDenied = 3
+	fxFailure          = 4
+	fxBadMessage       = 5
+	fxNoConnection     = 6
+	fxConnectionLost   = 7
+	fxOpUnsupported    = 8
+)
+
 type packetFXPVersion struct {
 	Version       uint32
 	ExtensionData []byte `ssh:"rest"`
@@ -60,6 +72,18 @@ type packetFXPOpen struct {
 	Attributes []byte `ssh:"rest"`
 }
 
+type packetFXPClose struct {
+	Handle []byte
+}
+
+type packetFXPOpendir struct {
+	Path string
+}
+
+type packetFXPReaddir struct {
+	Handle []byte
+}
+
 type packetFXPStatus struct {
 	StatusCode uint32
 	Message    string
@@ -67,6 +91,16 @@ type packetFXPStatus struct {
 }
 
 type packetFXPHandle struct {
-	HandleLength uint32
-	Handle       []byte `ssh:"rest"`
+	Handle []byte
+}
+
+type packetFXPNameEntry struct {
+	Filename   string
+	Longname   string
+	Attributes attrs
+}
+
+type packetFXPName struct {
+	Count   uint32
+	Entries []packetFXPNameEntry
 }

@@ -6,6 +6,7 @@ import (
 )
 
 type File struct {
+	path   string
 	handle []byte
 }
 
