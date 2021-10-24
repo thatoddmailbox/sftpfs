@@ -22,4 +22,4 @@ if err != nil {
 defer c.Close()
 ```
 
-`c` is an `*sftpfs.Client`, which implements fs.FS. In other words, you can pass it directly to anything that uses an fs.FS, like [fsbrowse](https://github.co/thatoddmailbox/fsbrowse).
+`c` is an `*sftpfs.Client`, which implements fs.FS. In other words, you can pass it directly to anything that uses an fs.FS, like [fsbrowse](https://github.com/thatoddmailbox/fsbrowse).
