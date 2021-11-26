@@ -6,7 +6,7 @@ Note that this can only be used to read files, as fs.FS only supports reads. In 
 
 ## Usage
 Use the `Dial` method, like so:
-```
+```go
 c, err := sftpfs.Dial("tcp", "some-host-with-an-sftp-server.com:22", &ssh.ClientConfig{
 	User: "username",
 	Auth: []ssh.AuthMethod{
