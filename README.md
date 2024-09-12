@@ -2,7 +2,7 @@
 
 An SFTP client that implements [fs.FS](https://pkg.go.dev/io/fs#FS). It relies on the [golang.org/x/crypto/ssh](https://pkg.go.dev/golang.org/x/crypto/ssh) package for the underlying SSH implementation.
 
-Requires Go 1.17 or newer.
+Requires Go 1.20 or newer.
 
 Note that this can only be used to read files, as the fs.FS interface only supports reads. In the future this could be extended to support writes, but there currently aren't any plans for that.
 
