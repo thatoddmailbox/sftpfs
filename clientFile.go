@@ -119,8 +119,8 @@ func (f *File) Close() error {
 }
 
 func (f *File) ReadDir(n int) ([]fs.DirEntry, error) {
-	if n != 0 {
-		return nil, errors.New("sftpfs: readdir with n != 0 not implemented")
+	if n > 0 {
+		return nil, errors.New("sftpfs: readdir with n > 0 not implemented")
 	}
 
 	return f.c.ReadDir(f.path)
